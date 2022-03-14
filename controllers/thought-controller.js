@@ -2,6 +2,8 @@ const { Thought, User } = require('../models');
 
 const thoughtController = {
 
+    
+
     // GET to get all thoughts
     getAllThoughts(req, res) {
         Thought.find({})
@@ -16,25 +18,25 @@ const thoughtController = {
     // GET to get a single thought by its _id
     getThoughtById({ params }, res) {
         Thought.findOne({ _id: params.id })
-            .populate({
-                path: 'thoughts',
-                select: '__v'
-            })
-            .select('-__v')
-            .then(dbThoughtData => res.json(dbThoughtData))
+            .then((dbThoughtData) => {
+                if (!dbThoughtData) {
+                res.status(404).json({ message: 'No thought found with this Id' });
+                return;
+            } 
+            res.json(dbThoughtData);
+        })
             .catch(err => {
                 console.log(err);
                 res.sendStatus(400);
             });
     },
     // POST to create a new thought (don't forget to push the created thought's _id to the associated user's thoughts array field)
-    createThought({ params, body }, res) {
-        // console.log(params);
+    createThought({ body }, res) {
         Thought.create(body)
-            .then(({_id}) => {
+            .then((data) => {
                 return User.findOneAndUpdate(
-                    { _id: params.userId },
-                    { $push: { thoughts: _id } },
+                    { _id: body.id },
+                    { $push: { thoughts: data._id } },
                     { new: true });
                 })
                     .then(dbThoughtData => {
@@ -62,14 +64,14 @@ const thoughtController = {
 
     // DELETE to remove a thought by its _id
     deleteThought({ params }, res) {
-        Thought.findOneAndDelete({ _id: params.thoughtId })
+        Thought.findOneAndRemove({ _id: params.id })
             .then(deletedThought => {
                 if (!deletedThought) {
                     return res.status(404).json({ message: 'No thought with this id!' });
                 }
                 return User.findOneAndUpdate(
-                    { _id: params.userId },
-                    { $pull: { thoughts: params.thoughtId } },
+                    { thoughts: params.id },
+                    { $pull: { thoughts: params.id } },
                     { new: true }
                 );
             })

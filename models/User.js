@@ -32,13 +32,12 @@ const UserSchema = new Schema(
             virtuals: true, 
             getters: true
         },
-
-        // prevents virtuals from creating duplicate of _id as `id`
+// prevents virtuals from creating duplicate of _id as `id`
         id: false
     }
 );
 
-// get total count of user's friends on retrieval
+// get total count of friends on retrieval
 UserSchema.virtual('friendCount').get(function() {
     return this.friends.length;
 });
@@ -46,5 +45,4 @@ UserSchema.virtual('friendCount').get(function() {
 const User = model('User', UserSchema);
 
 //export user module
-
 module.exports = User;

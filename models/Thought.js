@@ -3,6 +3,7 @@ const dateFormat = require('../utils/dateFormat');
 
 const ReactionSchema = new Schema(
     {
+        // set custom reactionId to differentiate with parent thought id
         reactionId: {
             type: Schema.Types.ObjectId,
             default: () => new Types.ObjectId()
@@ -46,6 +47,7 @@ const ThoughtSchema = new Schema(
             type: String,
             required: true
         },
+        // ReactionSchema validates data for a reaction
         reactions: [ReactionSchema]
     },
     {
@@ -64,5 +66,4 @@ ThoughtSchema.virtual('reactionCount').get(function() {
 const Thought = model('Thought', ThoughtSchema);
 
 //export Thought module
-
 module.exports = Thought;
